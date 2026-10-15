@@ -1,0 +1,19 @@
+/* Keep Steam's real menu actions; only restyle their surfaces. */
+#QuickAccess-Menu,
+#MainNavMenuContainer,
+#QuickAccess-Menu > div,
+#MainNavMenuContainer > div {
+  background: var(--shfs-surface) !important;
+  color: var(--shfs-text) !important;
+  box-shadow: none !important;
+}
+
+#QuickAccess-Menu svg,
+#MainNavMenuContainer svg {
+  color: var(--shfs-text) !important;
+}
+
+#QuickAccess-Menu .gpfocus,
+#MainNavMenuContainer .gpfocus {
+  color: #fff !important;
+}

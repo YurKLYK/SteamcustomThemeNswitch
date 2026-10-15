@@ -1,0 +1,79 @@
+{
+  "name": "Switch Home for Steam",
+  "display_name": "Switch Home for Steam",
+  "author": "YurKLYK",
+  "version": "v0.5.20",
+  "description": "Switch-inspired Windows Big Picture HOME with native Steam game cards and navigation. Includes a small Node runtime watcher for route re-entry.",
+  "manifest_version": 9,
+  "target": ["Home", "System-Wide"],
+  "flags": [],
+  "tabs": {
+    "bpm": ["bigpicture"],
+    "menus": ["QuickAccess", "MainMenu"]
+  },
+  "inject": {
+    "shared.css": ["bpm", "menus"],
+    "home.css": ["bpm"],
+    "menus.css": ["menus"]
+  },
+  "patches": {
+    "Color Scheme": {
+      "type": "dropdown",
+      "default": "Dark",
+      "values": {
+        "Light": {},
+        "Dark": {
+          "options/scheme/dark.css": ["bpm", "menus"]
+        }
+      }
+    },
+    "Game Icon Size": {
+      "type": "slider",
+      "default": "Medium",
+      "values": {
+        "Small": {"options/size/small.css": ["bpm"]},
+        "Medium": {"options/size/medium.css": ["bpm"]},
+        "Large": {"options/size/large.css": ["bpm"]}
+      }
+    },
+    "Game Icon Gap": {
+      "type": "slider",
+      "default": "Normal",
+      "values": {
+        "Tight": {"options/gap/tight.css": ["bpm"]},
+        "Normal": {"options/gap/normal.css": ["bpm"]},
+        "Wide": {"options/gap/wide.css": ["bpm"]}
+      }
+    },
+    "Bottom Menu": {
+      "type": "checkbox",
+      "default": "Yes",
+      "values": {
+        "No": {"options/bottom-menu/hide.css": ["bpm"]},
+        "Yes": {}
+      }
+    },
+    "Colors": {
+      "type": "none",
+      "values": {"_": {}},
+      "components": [
+        {
+          "name": "Selection Color",
+          "type": "color-picker",
+          "on": "_",
+          "default": "#00c3e3",
+          "css_variable": "shfs-accent",
+          "tabs": ["bpm", "menus"]
+        },
+        {
+          "name": "Background Color",
+          "type": "color-picker",
+          "on": "_",
+          "default": "#2d2d2d",
+          "css_variable": "shfs-background-custom",
+          "tabs": ["bpm", "menus"]
+        }
+      ]
+    }
+  }
+}

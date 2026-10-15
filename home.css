@@ -1,0 +1,6 @@
+/*
+ * The custom HOME is rendered by runtime/native-home.js and styled by
+ * runtime/home.css. This CSS Loader entry intentionally contains no selectors
+ * that alter Steam's native HOME. If the helper is stopped, Big Picture falls
+ * back to its stock, usable layout instead of a partially styled broken page.
+ */

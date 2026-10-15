@@ -1,0 +1,9 @@
+verification/
+VERIFICATION.md
+*.log
+runtime/node-path.txt
+dist/
+node_modules/
+*.zip
+.DS_Store
+Thumbs.db

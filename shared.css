@@ -1,0 +1,51 @@
+/* Switch Home for Steam - shared Windows Big Picture palette */
+:root {
+  --shfs-accent-fallback: #00c3e3;
+  --shfs-bg-fallback: #f4f4f4;
+  --shfs-surface: #ffffff;
+  --shfs-text: #2d2d2d;
+  --shfs-text-muted: #6a6a6a;
+  --shfs-line: #c9c9c9;
+  --shfs-danger: #e60012;
+  --shfs-icon-size: clamp(178px, 20vw, 272px);
+  --shfs-icon-gap: clamp(16px, 1.55vw, 28px);
+  --shfs-actions-visible: 1;
+}
+
+body.BasicUI,
+.BasicUI #Main,
+.BasicUI #header,
+.BasicUI .gamepadhome_ScrollArea_3PhGY,
+.BasicUI .gamepadhome_RecentSection_39tNv,
+.BasicUI .gamepadhomerecentgames_RecentGamesContainer_2_cRk,
+.BasicUI .gamepadhomerecentgames_RecentGamesInnerContainer_282X0 {
+  background: var(--shfs-background-custom, var(--shfs-bg-fallback)) !important;
+  color: var(--shfs-text) !important;
+}
+
+.BasicUI,
+.BasicUI button,
+.BasicUI input {
+  font-family: "Segoe UI", "Yu Gothic UI", system-ui, sans-serif !important;
+}
+
+.BasicUI .gpfocus,
+.BasicUI .gpfocuswithin,
+.BasicUI :focus-visible {
+  --gpColor-Blue: var(--shfs-accent, var(--shfs-accent-fallback));
+}
+
+.BasicUI .DialogButton,
+.BasicUI .gamepaddialog_Field_S-_La,
+.BasicUI [role="menuitem"] {
+  border-radius: 8px !important;
+}
+
+.BasicUI .DialogButton.gpfocus,
+.BasicUI .gamepaddialog_Field_S-_La.gpfocus,
+.BasicUI .gamepaddialog_Field_S-_La.gpfocuswithin,
+.BasicUI [role="menuitem"].gpfocus {
+  background: var(--shfs-accent, var(--shfs-accent-fallback)) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}

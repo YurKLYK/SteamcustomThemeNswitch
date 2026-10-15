@@ -1,0 +1,44 @@
+param(
+    [string]$ThemeRoot = (Join-Path $env:USERPROFILE 'homebrew\themes\Switch Home for Steam'),
+    [switch]$NoStart,
+    [switch]$NoStartup
+)
+$ErrorActionPreference = 'Stop'
+$sourceRoot = Split-Path -Parent $PSScriptRoot
+$themeRoot = [IO.Path]::GetFullPath($ThemeRoot)
+$startupRoot = [Environment]::GetFolderPath('Startup')
+$startupEntry = Join-Path $startupRoot 'Switch Home for Steam.vbs'
+$watcher = Join-Path $themeRoot 'runtime\watch-home.mjs'
+$node = (Get-Command node.exe -ErrorAction Stop).Source
+$nodeVersion = & $node --version
+if ($LASTEXITCODE -ne 0 -or $nodeVersion -notmatch '^v(\d+)\.' -or [int]$Matches[1] -lt 24) {
+    throw 'Install Node.js 24 LTS or newer, reopen PowerShell, and try again.'
+}
+
+if ([IO.Path]::GetFullPath($sourceRoot) -ne [IO.Path]::GetFullPath($themeRoot)) {
+    New-Item -ItemType Directory -Force -Path $themeRoot | Out-Null
+    foreach ($name in @('theme.json','shared.css','home.css','menus.css','PRIORITY','README.md','CHANGELOG.md')) {
+        Copy-Item -LiteralPath (Join-Path $sourceRoot $name) -Destination $themeRoot -Force
+    }
+    Copy-Item -LiteralPath (Join-Path $sourceRoot 'options') -Destination $themeRoot -Recurse -Force
+    $installedRuntime = Join-Path $themeRoot 'runtime'
+    New-Item -ItemType Directory -Force -Path $installedRuntime | Out-Null
+    foreach ($name in @('install.ps1','uninstall.ps1','startup.vbs','watch-home.mjs','native-home.js','home.css')) {
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $installedRuntime -Force
+    }
+}
+
+Set-Content -LiteralPath (Join-Path $themeRoot 'runtime\node-path.txt') -Value $node -Encoding Unicode
+if (-not $NoStartup) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'startup.vbs') -Destination $startupEntry -Force }
+$watcherPattern = [Regex]::Escape($watcher)
+$running = Get-CimInstance Win32_Process | Where-Object {
+    $_.Name -ieq 'node.exe' -and $_.CommandLine -and $_.CommandLine -match $watcherPattern
+}
+if (-not $NoStart) {
+    $running | ForEach-Object { Stop-Process -Id $_.ProcessId -ErrorAction Stop }
+    Start-Process -FilePath $node -ArgumentList ('"{0}"' -f $watcher) -WindowStyle Hidden
+}
+
+Write-Output "Theme installed at: $themeRoot"
+if (-not $NoStartup) { Write-Output "Startup watcher registered: $startupEntry" }
+Write-Output 'In CSS Loader Desktop, refresh the injector and enable Switch Home for Steam with Color Scheme set to Dark.'

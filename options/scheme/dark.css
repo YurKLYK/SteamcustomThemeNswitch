@@ -1,0 +1,17 @@
+:root {
+  --shfs-bg-fallback: #2d2d2d;
+  --shfs-surface: #3a3a3a;
+  --shfs-text: #f5f5f5;
+  --shfs-text-muted: #d0d0d0;
+  --shfs-line: #707070;
+}
+
+body.BasicUI,
+.BasicUI #Main,
+.BasicUI #header,
+.BasicUI .gamepadhome_ScrollArea_3PhGY,
+.BasicUI .gamepadhome_RecentSection_39tNv,
+.BasicUI .gamepadhomerecentgames_RecentGamesContainer_2_cRk,
+.BasicUI .gamepadhomerecentgames_RecentGamesInnerContainer_282X0 {
+  background: #2d2d2d !important;
+}

@@ -1,0 +1,2 @@
+:root { --shfs-actions-visible: 0; }
+#shfs-home .shfs-actions { display: none !important; }
