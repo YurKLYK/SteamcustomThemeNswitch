@@ -37,7 +37,9 @@ foreach ($reference in $cssReferences) {
     }
 }
 
-$cssFiles = Get-ChildItem -LiteralPath $themeRoot -Recurse -Filter '*.css' -File
+$cssFiles = @(Get-ChildItem -LiteralPath $themeRoot -Recurse -Filter '*.css' -File | Where-Object {
+    $_.FullName -notlike (Join-Path $themeRoot 'dist\*') -and $_.FullName -notlike (Join-Path $themeRoot 'node_modules\*')
+})
 foreach ($file in $cssFiles) {
     $content = Get-Content -LiteralPath $file.FullName -Raw
     $openCount = ([regex]::Matches($content, '\{')).Count

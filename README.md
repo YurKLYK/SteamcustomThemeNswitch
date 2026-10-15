@@ -76,6 +76,10 @@ Windowsへの導入にGit、Python、npmパッケージ、Steam Deck、Decky Loa
 
 ## 5. HOMEヘルパーを登録
 
+簡単に導入する場合は、展開したフォルダーの`Setup.cmd`をダブルクリックしてください。ヘルパーと自動起動を登録し、デスクトップに`Switch Home for Steam`ショートカットを作ります。Steam・CSSLoader Desktop・Node.jsは先に導入してください。Setupはそれらを自動ダウンロードしません。
+
+以後はこのショートカットを開くだけで、ヘルパーとSteam Big Pictureを一緒に起動できます。ヘルパーが動いていれば再利用するため、ショートカットを繰り返し開いても増えません。初回のテーマ有効化は手順6で行います。
+
 通常権限のPowerShellで次を実行します。テーマスクリプトに管理者権限は不要です。
 
 ```powershell
@@ -144,6 +148,10 @@ CSSLoaderのテーマ設定で`Color Scheme`（Dark/Light）、`Selection Color`
 CSSを直接調整する場合は`runtime/home.css`と`options/`を編集し、手順5を再実行してヘルパーも再起動します。
 
 ## PC起動時にBig Pictureへ入る
+
+専用ショートカットは、Steamが停止中ならデバッグ引数付きでBig Pictureを起動し、すでに起動中ならSteamのBig Picture起動URIを使います。すでに動いているSteamに後からデバッグ引数は適用できないため、その場合はSteamを完全終了してショートカットから起動し直してください。Steamやゲームを自動で強制終了する処理はありません。
+
+通常のSteamからBig Pictureへ入る場合も、Windowsログイン時のヘルパーが待機していれば適用されます。専用ショートカットを使わず、ログイン時のヘルパーも止めている場合に、Steamの通常ボタンだけから外部JSを自動起動する仕組みではありません。CSSLoader Backendの起動・テーマ有効化は別途必要です。
 
 Steam設定の「インターフェイス」内でWindowsログイン時のSteam起動とBig Picture起動を有効にします（項目名はバージョンで変わる場合あり）。CSSLoader Desktop / Backendの自動起動もCSSLoader側で設定してください。ヘルパーはWindowsログイン時に起動し、Steamが利用可能になるまで待ちます。
 

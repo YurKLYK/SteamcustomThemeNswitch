@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '0.5.20-distribution';
+  const VERSION = '0.5.21-integrated-launcher';
   if (window.__switchHome?.version === VERSION && window.__switchHome.status().mounted) return window.__switchHome.status();
   window.__switchHome?.dispose();
   const recentSectionClass = window.__shfsClasses?.gamepadhome_RecentSection_39tNv || '_39tNvaLedsTrVh0fFsP4Jm';
