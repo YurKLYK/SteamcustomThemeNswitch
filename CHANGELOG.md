@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.5.22 — 2026-10-15
+
+- Setup.cmd単体で固定リリースのテーマ一式をGitHubから取得し、CSS・ヘルパーを自動配置
+- Node.js不足時はwinget、CSSLoader Desktop不足時は公式MSIによる導入に対応
+- 失敗時に完了メッセージが出ないようにエラー伝播を修正
+- GitHub ReleasesにCMD・配布ZIP・SHA256SUMSを公開するワークフローを追加
+
 ## v0.5.21 — 2026-10-15
 
 - Setup.cmdとデスクトップショートカットを追加し、ヘルパーとSteam Big Pictureをまとめて起動

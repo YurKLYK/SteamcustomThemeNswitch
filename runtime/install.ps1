@@ -24,7 +24,7 @@ if ([IO.Path]::GetFullPath($sourceRoot) -ne [IO.Path]::GetFullPath($themeRoot)) 
     Copy-Item -LiteralPath (Join-Path $sourceRoot 'options') -Destination $themeRoot -Recurse -Force
     $installedRuntime = Join-Path $themeRoot 'runtime'
     New-Item -ItemType Directory -Force -Path $installedRuntime | Out-Null
-    foreach ($name in @('install.ps1','uninstall.ps1','startup.vbs','launch.ps1','launch.vbs','watch-home.mjs','native-home.js','home.css')) {
+    foreach ($name in @('install.ps1','setup.ps1','uninstall.ps1','startup.vbs','launch.ps1','launch.vbs','watch-home.mjs','native-home.js','home.css')) {
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $installedRuntime -Force
     }
 }

@@ -14,6 +14,19 @@ Windows版Steam Big Pictureを、Nintendo SwitchのHOMEメニューに近い配�
 
 Windowsへの導入にGit、Python、npmパッケージ、Steam Deck、Decky Loaderは不要です。キーボード・マウスでも操作できます。
 
+## いちばん簡単な導入：CMDひとつだけ
+
+1. Steamを導入してログインします。
+2. [Releases](https://github.com/YurKLYK/SteamcustomThemeNswitch/releases/latest)のAssetsから`Setup.cmd`だけをダウンロードして実行します。同梱フォルダーは不要です。
+3. CMDが同じリリースのテーマをGitHubから取得・展開します。Node.js 24以降がなければwingetで公式LTSを導入し、CSSLoader Desktopがなければ[公式MSI](https://github.com/DeckThemes/CSSLoader-Desktop/releases/latest)を取得してインストーラーを開きます。Windowsの許可画面やインストーラーは内容を確認して進めてください。wingetがないPCではNode.jsを手動導入して再実行します。
+4. CSS・JSが`%USERPROFILE%\homebrew\themes\Switch Home for Steam`へ自動配置され、ヘルパーのログイン時起動とデスクトップショートカットが登録されます。
+5. CSSLoader Desktopを開き、初回はBackendをInstallします。テーマを再読み込みし、`Switch Home for Steam`を有効化、`Color Scheme`を`Dark`にします。この操作は自動化していません。
+6. デスクトップの`Switch Home for Steam`からBig Pictureを開きます。
+
+ネット接続が必要です。CMDは固定バージョンを取得するので、更新時は新しいリリースのCMDを使ってください。失敗時は赤いエラーと失敗メッセージを表示し、完了とは表示しません。ダウンロードはWindowsの一時フォルダーに残ります（診断用）。ハッシュ確認用の`SHA256SUMS.txt`もリリースに添付します。新規PCでのNode.js/MSI導入全体は未検証です。
+
+以下は手動導入・トラブル対応用の詳しい手順です。
+
 ## 1. Steamを準備
 
 1. Steamをインストールし、自分のアカウントでログインします。
@@ -76,7 +89,7 @@ Windowsへの導入にGit、Python、npmパッケージ、Steam Deck、Decky Loa
 
 ## 5. HOMEヘルパーを登録
 
-簡単に導入する場合は、展開したフォルダーの`Setup.cmd`をダブルクリックしてください。ヘルパーと自動起動を登録し、デスクトップに`Switch Home for Steam`ショートカットを作ります。Steam・CSSLoader Desktop・Node.jsは先に導入してください。Setupはそれらを自動ダウンロードしません。
+簡単に導入する場合は`Setup.cmd`をダブルクリックしてください。CMD単体でもリリースからテーマを再取得し、依存ソフトの確認・導入とCSS配置を実行します。手動配置済みでダウンロードをせず登録する場合は、以下の`runtime\install.ps1`を使ってください。
 
 以後はこのショートカットを開くだけで、ヘルパーとSteam Big Pictureを一緒に起動できます。ヘルパーが動いていれば再利用するため、ショートカットを繰り返し開いても増えません。初回のテーマ有効化は手順6で行います。
 

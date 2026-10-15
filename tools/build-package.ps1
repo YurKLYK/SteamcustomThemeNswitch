@@ -12,7 +12,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $sourceRoot 'options') -Destination $packageRoot -Recurse
     $runtimeRoot = Join-Path $packageRoot 'runtime'
     New-Item -ItemType Directory -Path $runtimeRoot | Out-Null
-    foreach ($name in @('home.css','native-home.js','watch-home.mjs','install.ps1','uninstall.ps1','startup.vbs','launch.ps1','launch.vbs')) {
+    foreach ($name in @('home.css','native-home.js','watch-home.mjs','install.ps1','setup.ps1','uninstall.ps1','startup.vbs','launch.ps1','launch.vbs')) {
         Copy-Item -LiteralPath (Join-Path $sourceRoot "runtime\$name") -Destination $runtimeRoot
     }
     $toolRoot = Join-Path $packageRoot 'tools'
