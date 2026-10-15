@@ -13,7 +13,7 @@ exit /b 1
 :POWERSHELL_START
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-$version = 'v0.5.22'
+$version = 'v0.5.23'
 $work = Join-Path ([IO.Path]::GetTempPath()) ('shfs-download-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $work | Out-Null
 $archive = Join-Path $work 'theme.zip'

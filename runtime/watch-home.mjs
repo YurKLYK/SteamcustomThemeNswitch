@@ -8,6 +8,11 @@ const logFile = path.join(runtimeRoot, 'watch-home.log');
 const endpoint = 'http://127.0.0.1:8080/json';
 const runtimeSource = await fs.readFile(path.join(runtimeRoot, 'native-home.js'), 'utf8');
 const runtimeCss = await fs.readFile(path.join(runtimeRoot, 'home.css'), 'utf8');
+const baseCss = await fs.readFile(path.join(themeRoot, 'shared.css'), 'utf8') + '\n' +
+  await fs.readFile(path.join(themeRoot, 'options', 'scheme', 'dark.css'), 'utf8') + `
+  html[data-shfs-bpm], html[data-shfs-bpm] body, html[data-shfs-bpm] #Main {
+    background-color: var(--shfs-background-custom, #2d2d2d) !important;
+  }`;
 const runtimeVersion = runtimeSource.match(/\bconst VERSION = '([^']+)'/)?.[1];
 if (!runtimeVersion) throw Error('Could not determine Switch Home runtime version');
 let translations = {};
@@ -28,18 +33,22 @@ classMap.gamepadhome_RecentSection_39tNv = classMap.QcGXoqZ7_RecentSection || cu
 classMap.gamepadhome_ScrollArea_3PhGY = classMap.QcGXoqZ7_ScrollArea || currentByAlias.get('_3PhGYbMWIcIaZCfllWN19N') || '_3PhGYbMWIcIaZCfllWN19N';
 const cssForSteam = runtimeCss.replace(/\.([_a-zA-Z][-_a-zA-Z0-9]*)/g, (match, name) =>
   currentByAlias.has(name) ? `.${currentByAlias.get(name)}` : match);
+const baseCssForSteam = baseCss.replace(/\.([_a-zA-Z][-_a-zA-Z0-9]*)/g, (match, name) =>
+  currentByAlias.has(name) ? `.${currentByAlias.get(name)}` : match);
 const quote = value => JSON.stringify(value);
 const injectExpression = `(() => {
-  if (location.pathname !== '/routes/library/home') {
-    window.__switchHome?.dispose();
-    return { outsideHome: location.pathname };
-  }
+  // Steam can host its memory-router HOME at /index.html. Inspect the mounted
+  // HOME section, not the browser URL, to avoid disabling the theme on startup.
   window.__shfsClasses = ${quote(classMap)};
+  document.documentElement.setAttribute('data-shfs-bpm', '');
+  let baseStyle = document.getElementById('shfs-bpm-style');
+  if (!baseStyle) { baseStyle = document.createElement('style'); baseStyle.id = 'shfs-bpm-style'; document.head.appendChild(baseStyle); }
+  baseStyle.textContent = ${quote(baseCssForSteam)};
   let style = document.getElementById('shfs-runtime-style');
   if (!style) { style = document.createElement('style'); style.id = 'shfs-runtime-style'; document.head.appendChild(style); }
   style.textContent = ${quote(cssForSteam)};
   const ready = document.querySelector('.' + CSS.escape(window.__shfsClasses.gamepadhome_RecentSection_39tNv || '_39tNvaLedsTrVh0fFsP4Jm'));
-  if (!ready) { window.__switchHome?.dispose(); return { waiting: 'Steam HOME carousel' }; }
+  if (!ready) { window.__switchHome?.dispose(); return { outsideHome: location.pathname }; }
   if (window.__switchHome?.status().mounted) {
     if (window.__switchHome.version === ${quote(runtimeVersion)}) return window.__switchHome.sync();
     window.__switchHome.dispose();
