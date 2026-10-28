@@ -18,7 +18,7 @@ if ($LASTEXITCODE -ne 0 -or $nodeVersion -notmatch '^v(\d+)\.' -or [int]$Matches
 
 if ([IO.Path]::GetFullPath($sourceRoot) -ne [IO.Path]::GetFullPath($themeRoot)) {
     New-Item -ItemType Directory -Force -Path $themeRoot | Out-Null
-    foreach ($name in @('theme.json','shared.css','home.css','menus.css','PRIORITY','README.md','CHANGELOG.md','Setup.cmd')) {
+    foreach ($name in @('theme.json','shared.css','home.css','settings.css','menus.css','PRIORITY','README.md','CHANGELOG.md','Setup.cmd','Artwork-Resizer.html')) {
         Copy-Item -LiteralPath (Join-Path $sourceRoot $name) -Destination $themeRoot -Force
     }
     Copy-Item -LiteralPath (Join-Path $sourceRoot 'options') -Destination $themeRoot -Recurse -Force

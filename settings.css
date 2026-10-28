@@ -1,0 +1,48 @@
+/* Measured Windows Big Picture settings DOM. Keep Steam controls and navigation.
+   Scope to settings panels; HOME rails, dialogs and toggle thumbs are untouched. */
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R {
+  background: #2d2d2d !important;
+  color: #f5f5f5 !important;
+}
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R .eKmEXJCm_lgme24Fp_HWt {
+  border-radius: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid #505050 !important;
+  box-shadow: none !important;
+}
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R .eKmEXJCm_lgme24Fp_HWt.gpfocus,
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R .eKmEXJCm_lgme24Fp_HWt.gpfocuswithin,
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R .eKmEXJCm_lgme24Fp_HWt:focus-visible {
+  background: #202329 !important;
+  outline: 3px solid var(--shfs-accent, #00c3e3) !important;
+  outline-offset: -3px !important;
+  color: #f5f5f5 !important;
+}
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R .DialogButton {
+  border-radius: 0 !important;
+}
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R button[role="combobox"] {
+  border-radius: 0 !important;
+  background: #383838 !important;
+  box-shadow: none !important;
+}
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R button[role="combobox"]:focus-visible,
+[role="tabpanel"]._16sYNwqxz6giarbVaRUl7R button[role="combobox"].gpfocus {
+  outline: 2px solid var(--shfs-accent, #00c3e3) !important;
+  outline-offset: -2px !important;
+}
+/* The actual settings sidebar tab and selected-tab classes observed in Steam. */
+._2mL2HfT5AkDXRi1YBnRWKa[role="tab"] {
+  border-radius: 0 !important;
+  background: #303030 !important;
+  color: #f5f5f5 !important;
+}
+._2mL2HfT5AkDXRi1YBnRWKa._1ELdDY5kb5jxjXe-FpWBo5[role="tab"] {
+  color: var(--shfs-accent, #00c3e3) !important;
+  box-shadow: inset 3px 0 var(--shfs-accent, #00c3e3) !important;
+}
+._2mL2HfT5AkDXRi1YBnRWKa[role="tab"].gpfocus {
+  outline: 2px solid var(--shfs-accent, #00c3e3) !important;
+  outline-offset: -2px !important;
+}

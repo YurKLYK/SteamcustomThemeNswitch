@@ -2,7 +2,7 @@
   "name": "Switch Home for Steam",
   "display_name": "Switch Home for Steam",
   "author": "YurKLYK",
-  "version": "v0.5.23",
+  "version": "v0.5.24",
   "description": "Switch-inspired Windows Big Picture HOME with native Steam game cards and navigation. Includes a small Node runtime watcher for route re-entry.",
   "manifest_version": 9,
   "target": ["Home", "System-Wide"],
@@ -14,6 +14,7 @@
   "inject": {
     "shared.css": ["bpm", "menus"],
     "home.css": ["bpm"],
+    "settings.css": ["bpm"],
     "menus.css": ["menus"]
   },
   "patches": {

@@ -6,7 +6,7 @@ $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('shfs-package-' + [Guid]::NewG
 $packageRoot = Join-Path $tempRoot 'Switch Home for Steam'
 New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
 try {
-    foreach ($name in @('theme.json','shared.css','home.css','menus.css','PRIORITY','README.md','CHANGELOG.md','Setup.cmd')) {
+    foreach ($name in @('theme.json','shared.css','home.css','settings.css','menus.css','PRIORITY','README.md','CHANGELOG.md','Setup.cmd','Artwork-Resizer.html')) {
         Copy-Item -LiteralPath (Join-Path $sourceRoot $name) -Destination $packageRoot
     }
     Copy-Item -LiteralPath (Join-Path $sourceRoot 'options') -Destination $packageRoot -Recurse

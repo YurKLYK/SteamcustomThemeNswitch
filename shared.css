@@ -1,11 +1,16 @@
 /* Switch Home for Steam - shared Windows Big Picture palette */
+/* Match Steam's native Big Picture context-menu corners, including when a
+   CSSLoader session still holds the older broad 8px menuitem rule. */
+html[data-shfs-bpm] .BasicUIContextMenu .contextMenuItem {
+  border-radius: 0 !important;
+}
 :root {
   --shfs-accent-fallback: #00c3e3;
-  --shfs-bg-fallback: #f4f4f4;
-  --shfs-surface: #ffffff;
-  --shfs-text: #2d2d2d;
-  --shfs-text-muted: #6a6a6a;
-  --shfs-line: #c9c9c9;
+  --shfs-bg-fallback: #2d2d2d;
+  --shfs-surface: #3a3a3a;
+  --shfs-text: #f5f5f5;
+  --shfs-text-muted: #d0d0d0;
+  --shfs-line: #707070;
   --shfs-danger: #e60012;
   --shfs-icon-size: clamp(178px, 20vw, 272px);
   --shfs-icon-gap: clamp(16px, 1.55vw, 28px);
@@ -36,15 +41,13 @@ body.BasicUI,
 }
 
 .BasicUI .DialogButton,
-.BasicUI .gamepaddialog_Field_S-_La,
-.BasicUI [role="menuitem"] {
+.BasicUI .gamepaddialog_Field_S-_La {
   border-radius: 8px !important;
 }
 
 .BasicUI .DialogButton.gpfocus,
 .BasicUI .gamepaddialog_Field_S-_La.gpfocus,
-.BasicUI .gamepaddialog_Field_S-_La.gpfocuswithin,
-.BasicUI [role="menuitem"].gpfocus {
+.BasicUI .gamepaddialog_Field_S-_La.gpfocuswithin {
   background: var(--shfs-accent, var(--shfs-accent-fallback)) !important;
   color: #fff !important;
   box-shadow: none !important;

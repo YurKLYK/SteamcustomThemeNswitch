@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Steam カバー画像調整</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#2d2d2d;color:#f5f5f5;font:16px/1.65 'Segoe UI','Yu Gothic UI',sans-serif}main{max-width:1080px;margin:auto;padding:32px}h1{font-size:26px;font-weight:500;margin:0}p{color:#ccc}a{color:#53d8e9}.layout{display:grid;grid-template-columns:1fr 330px;gap:40px;margin-top:28px}label{display:block;margin:18px 0 6px}input,select,button{font:inherit}select,input[type=file]{width:100%;padding:10px;background:#383838;border:1px solid #666;color:inherit}button{padding:10px 18px;border:1px solid #666;background:#383838;color:inherit;cursor:pointer}button:disabled{opacity:.4;cursor:default}button.primary{background:#00c3e3;color:#15262a;border:0;font-weight:600}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #00c3e3;outline-offset:3px}.buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}canvas{display:block;width:100%;height:auto;background:#3a3a3a;border:1px solid #666}.preview p{margin:8px 0;font-size:14px}#status{min-height:60px;white-space:pre-line;color:#66dfed}input[type=range]{width:100%;accent-color:#00c3e3}#crop-controls[hidden]{display:none}.note{font-size:14px}input[type=color]{width:68px;height:36px;vertical-align:middle}footer{border-top:1px solid #555;margin-top:30px;padding-top:18px;font-size:14px;color:#bbb}@media(max-width:750px){.layout{grid-template-columns:1fr}.preview{max-width:330px;margin:auto}}
+</style>
+<main>
+<h1>Steam カバー画像調整</h1>
+<p>画像を歪ませず、縦長カバーの推奨サイズ <strong>600 × 900 px（2:3）</strong> に整えます。</p>
+<div class="layout"><section aria-label="画像の設定">
+<label for="file">1. 画像を選ぶ（PNG / JPEG / WebP）</label>
+<input id="file" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp">
+<label for="mode">2. 枠への収め方</label>
+<select id="mode"><option value="contain">全体を収める — 切り取りなし・余白あり（標準）</option><option value="cover">枠いっぱい — はみ出す部分を切り取る</option></select>
+<p class="note">どちらも元画像の縦横比を保ちます。横長画像で「切り取りなし・余白なし」を両立することはできません。</p>
+<label for="background">余白の色 <input id="background" type="color" value="#3a3a3a"></label>
+<div id="crop-controls" hidden><label for="crop-x">切り取り位置：左右</label><input id="crop-x" type="range" min="0" max="100" value="50"><label for="crop-y">切り取り位置：上下</label><input id="crop-y" type="range" min="0" max="100" value="50"></div>
+<div class="buttons"><button id="save" class="primary" disabled>600 × 900 PNGを保存</button><button id="sample">サンプルで試す</button></div>
+<p id="status" role="status" aria-live="polite">画像を選ぶとプレビューを表示します。</p>
+<p class="note">保存したPNGを、Big Pictureのカード右クリック／F9 →「画像を変更…」で選んでください。元画像は変更しません。小さい画像を拡大しても画質そのものは改善しません。</p>
+</section><section class="preview" aria-label="出力プレビュー"><canvas id="preview" width="600" height="900" role="img" aria-label="600×900ピクセルの出力プレビュー"></canvas><p>保存画像と同じ内容を縮小表示</p></section></div>
+<footer>ブラウザーだけで動作します。画像のアップロード・通信・外部ライブラリなし。<br>サイズの参考：<a href="https://partner.steamgames.com/doc/store/assets/libraryassets" target="_blank" rel="noopener noreferrer">Steamworks公式 Library Capsule</a></footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),canvas=$('preview'),ctx=canvas.getContext('2d');
+let source=null,baseName='steam-cover',loadToken=0;
+function fitRect(width,height,mode,x=.5,y=.5){
+ const scale=mode==='cover'?Math.max(600/width,900/height):Math.min(600/width,900/height);
+ const w=width*scale,h=height*scale;
+ return {x:(600-w)*(mode==='cover'?x:.5),y:(900-h)*(mode==='cover'?y:.5),width:w,height:h,scale};
+}
+function render(){
+ ctx.fillStyle=$('background').value;ctx.fillRect(0,0,600,900);
+ $('crop-controls').hidden=$('mode').value!=='cover';
+ if(!source)return;
+ const w=source.naturalWidth||source.width,h=source.naturalHeight||source.height;
+ const r=fitRect(w,h,$('mode').value,Number($('crop-x').value)/100,Number($('crop-y').value)/100);
+ ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(source,r.x,r.y,r.width,r.height);
+ $('status').textContent=`元画像 ${w} × ${h} px → 出力 600 × 900 px\n縦横比を保持・${$('mode').value==='cover'?'切り取りあり':'切り取りなし'}${r.scale>1?'（拡大あり）':''}`;
+ $('save').disabled=false;
+}
+$('file').addEventListener('change',async()=>{
+ const file=$('file').files[0];if(!file)return;
+ const token=++loadToken;$('save').disabled=true;
+ if(file.size>50*1024*1024){$('status').textContent='50MB以下の画像を選んでください。';return;}
+ if(!/\.(png|jpe?g|webp)$/i.test(file.name)){ $('status').textContent='PNG・JPEG・WebP画像を選んでください。';return; }
+ const url=URL.createObjectURL(file),image=new Image();
+ try{image.src=url;await image.decode();if(token!==loadToken)return;
+  if(image.naturalWidth*image.naturalHeight>60000000)throw Error('画像が大きすぎます（上限6000万ピクセル）。');
+  source=image;baseName=file.name.replace(/\.[^.]+$/,'').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_');$('crop-x').value=$('crop-y').value='50';render();
+ }catch(error){if(token===loadToken){source=null;render();$('status').textContent='画像を読み込めませんでした。'+(error.message||'');}}
+ finally{URL.revokeObjectURL(url);}
+});
+for(const id of ['mode','background','crop-x','crop-y'])$(id).addEventListener('input',render);
+$('save').addEventListener('click',()=>{if(!source)return;canvas.toBlob(blob=>{if(!blob){$('status').textContent='PNGの作成に失敗しました。';return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=baseName+'-600x900.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);},'image/png');});
+$('sample').addEventListener('click',()=>{++loadToken;const sample=document.createElement('canvas');sample.width=1600;sample.height=900;const s=sample.getContext('2d');s.fillStyle='#12617c';s.fillRect(0,0,1600,900);s.fillStyle='#0bc5d9';s.fillRect(0,0,170,900);s.fillStyle='#f0b942';s.fillRect(1430,0,170,900);s.fillStyle='#fff';s.font='bold 94px sans-serif';s.textAlign='center';s.fillText('16:9 SAMPLE',800,450);s.font='42px sans-serif';s.fillText('1600 x 900',800,540);source=sample;baseName='sample';$('file').value='';render();});
+render();
+</script>
+</html>

@@ -1,5 +1,5 @@
 (() => {
-  const VERSION = '0.5.21-integrated-launcher';
+  const VERSION = '0.5.24-artwork-repeat-save';
   if (window.__switchHome?.version === VERSION && window.__switchHome.status().mounted) return window.__switchHome.status();
   window.__switchHome?.dispose();
   const recentSectionClass = window.__shfsClasses?.gamepadhome_RecentSection_39tNv || '_39tNvaLedsTrVh0fFsP4Jm';
@@ -32,7 +32,79 @@
   const useHistory = requireSteam(49519).W6;
   const searchRoute = requireSteam(72500).BV.GamepadUI.Search.Tab('All');
   const SearchIcon = requireSteam(69385).Search;
-  const profileImage = document.querySelector('#header_profile img.avatar')?.src;
+  const nativeGameMenu = requireSteam(43394);
+  const NativeMenuItem = requireSteam(12711).kt;
+  const showNativeMenu = requireSteam(377).lX;
+  const steamJsx = requireSteam(62540);
+  const originalJsx = steamJsx.jsx;
+  const originalJsxs = steamJsx.jsxs;
+  let artworkInput;
+  const chooseArtwork = appid => {
+    artworkInput?.remove();
+    const input=document.createElement('input');artworkInput=input;
+    input.type='file';input.accept='.jpg,.jpeg,.png';input.style.display='none';
+    document.body.appendChild(input);
+    input.addEventListener('cancel',()=>input.remove(),{once:true});
+    input.addEventListener('change',async()=>{
+      const file=input.files?.[0];if(!file){input.remove();return;}
+      try{
+        const type=file.name.toLowerCase().match(/\.(png|jpe?g)$/)?.[1];
+        if(!type)throw Error('PNGまたはJPEG画像を選んでください。');
+        if(file.size>50*1024*1024)throw Error('50MB以下の画像を選んでください。');
+        const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(Error('画像を読み込めませんでした。'));reader.readAsDataURL(file);});
+        state.artworkSave={appid,status:'saving'};
+        await shared.SteamClient.Apps.SetCustomArtworkForApp(appid,data.slice(data.indexOf('base64,')+7),type==='jpeg'?'jpg':type,0);
+        state.artworkSave={appid,status:'saved',at:Date.now()};
+        state.refreshArtwork?.(appid,data);
+      }catch(error){state.artworkSave={appid,status:'error',message:String(error.message||error)};alert('画像の変更に失敗しました：'+String(error.message||error));}
+      finally{input.value='';input.remove();}
+    },{once:true});
+    input.click();
+  };
+  const findArtwork = appid => {
+    const card=document.querySelector(`#shfs-home .shfs-game[data-shfs-app="${appid}"]`);
+    if(!card)return null;
+    const pending=[card[Object.keys(card).find(key=>key.startsWith('__reactFiber$'))]];
+    while(pending.length){const node=pending.pop();if(!node)continue;
+      if(node.stateNode?.ChooseCustomArtwork&&node.stateNode.props?.app?.appid===appid&&node.stateNode.props.eAssetType===0)return node.stateNode;
+      for(let child=node.child;child;child=child.sibling)pending.push(child);
+    }
+    return null;
+  };
+  const extendMenuProps = (type, props) => {
+    if(type!==nativeGameMenu.uU||!props?.overview?.BIsShortcut?.()||!document.querySelector('#shfs-home'))return props;
+    const asset=findArtwork(props.overview.appid);if(!asset||props.additionalActions?.key==='shfs-artwork')return props;
+    return {...props,additionalActions:React.createElement(React.Fragment,{key:'shfs-artwork'},props.additionalActions,
+      React.createElement(NativeMenuItem,{onSelected:()=>chooseArtwork(props.overview.appid)},'画像を変更…'))};
+  };
+  const patchedJsx = (type,props,...rest)=>originalJsx(type,extendMenuProps(type,props),...rest);
+  const patchedJsxs = (type,props,...rest)=>originalJsxs(type,extendMenuProps(type,props),...rest);
+  const collections = requireSteam(59671);
+  const favoriteApps = () => [...(collections.md.GetCollection(collections.A8.Favorites)?.visibleApps || [])]
+    .sort((a,b) => Math.max(Number(b.rt_last_time_played)||0,Number(b.rt_last_time_locally_played)||0)
+      - Math.max(Number(a.rt_last_time_played)||0,Number(a.rt_last_time_locally_played)||0)
+      || String(a.display_name||'').localeCompare(String(b.display_name||''),'ja') || a.appid-b.appid);
+  /* circle-user-round, Lucide: Copyright (c) 2026 Lucide Icons and Contributors.
+     ISC License: Permission to use, copy, modify, and/or distribute this software
+     for any purpose with or without fee is hereby granted, provided that the above
+     copyright notice and this permission notice appear in all copies.
+     THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+     REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+     AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+     INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+     LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+     OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+     PERFORMANCE OF THIS SOFTWARE. */
+  const defaultAvatar = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f5f5f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.925 20.056a6 6 0 0 0-11.851.001"/><circle cx="12" cy="11" r="4"/><circle cx="12" cy="12" r="10"/></svg>');
+  const avatarSource = src => {
+    if (!src) return defaultAvatar;
+    try {
+      const url = new URL(src);
+      if (/(^|\.)steamstatic\.com$/.test(url.hostname) && /\/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb(?:_(?:medium|full))?\.jpg$/i.test(url.pathname)) return defaultAvatar;
+    } catch {}
+    return src;
+  };
+  const profileImage = avatarSource(document.querySelector('#header_profile img.avatar')?.src);
   let downloadStore = null;
   let friendStore = null;
   try {
@@ -79,7 +151,7 @@
         const game = playing[0]?.current_game_name || '';
         const avatars = online.map((friend, index) => ({
           key: friend.persona?.avatar_url_medium || friend.persona?.avatar_url_full || String(index),
-          src: friend.persona?.avatar_url_medium || friend.persona?.avatar_url_full || '',
+          src: avatarSource(friend.persona?.avatar_url_medium || friend.persona?.avatar_url_full || ''),
           playing: !!friend.persona?.is_ingame,
           game: friend.persona?.is_ingame ? friend.current_game_name || '' : ''
         })).filter(friend => friend.src).sort((a, b) => Number(b.playing) - Number(a.playing));
@@ -90,13 +162,19 @@
       } catch { return { available: false, friendCount: 0, onlineCount: 0, playingCount: 0, avatars: [], label: 'フレンド情報待ち' }; }
     },
     sync() {
+      const favoritesKey = favoriteApps().map(a=>a.appid).join(',');
       const visible = getComputedStyle(document.documentElement).getPropertyValue('--shfs-actions-visible').trim() !== '0';
-      if (visible !== state.actionsVisible) { state.actionsVisible = visible; carousel.forceUpdate(); }
+      if (visible !== state.actionsVisible || favoritesKey !== state.favoritesKey) { state.favoritesKey=favoritesKey; state.actionsVisible = visible; carousel.forceUpdate(); }
       return state.status();
     },
     setStage(stage) { state.stage = stage; carousel.forceUpdate(); },
     closeMenus() { app.CloseSideMenus(); },
     dispose() {
+      artworkInput?.remove();
+      if(steamJsx.jsx===patchedJsx)steamJsx.jsx=originalJsx;
+      if(steamJsx.jsxs===patchedJsxs)steamJsx.jsxs=originalJsxs;
+      document.removeEventListener('contextmenu', shortcutContextMenu, true);
+      document.removeEventListener('keydown', shortcutMenuKey, true);
       delete carousel.render;
       for (const { child, display, inert } of hidden) { child.style.display = display; child.inert = inert; }
       headerClock?.classList.remove('shfs-native-clock');
@@ -108,6 +186,34 @@
       delete window.__switchHome;
     }
   };
+  function openShortcutArtworkMenu(card, event) {
+    const appid = Number(card?.dataset.shfsApp);
+    const overview = favoriteApps().find(app => app.appid === appid);
+    if (!overview?.BIsShortcut()) return false;
+    const pending = [card[Object.keys(card).find(key => key.startsWith('__reactFiber$'))]];
+    let asset;
+    while (pending.length) {
+      const node = pending.pop(); if (!node) continue;
+      if (node.stateNode?.ChooseCustomArtwork && node.stateNode.props?.app?.appid === appid && node.stateNode.props.eAssetType === 0) { asset = node.stateNode; break; }
+      for (let child = node.child; child; child = child.sibling) pending.push(child);
+    }
+    if (!asset) return false;
+    event.preventDefault(); event.stopImmediatePropagation();
+    showNativeMenu(h(nativeGameMenu.uU, {
+      overview, client: 'mostavailable', bInGamepadUI: true,
+      additionalActions: h(NativeMenuItem, { onSelected: () => chooseArtwork(appid) }, '画像を変更…')
+    }), event, nativeGameMenu.zq());
+    return true;
+  }
+  function shortcutContextMenu(event) {
+    const card = event.target?.closest?.('#shfs-home .shfs-game');
+    if (card) openShortcutArtworkMenu(card, event);
+  }
+  function shortcutMenuKey(event) {
+    if (event.key !== 'F9' || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+    const card = document.activeElement?.closest?.('#shfs-home .shfs-game');
+    if (card) openShortcutArtworkMenu(card, event);
+  }
   function Home() {
     const history = useHistory();
     const unreadNotifications = useUnreadNotifications();
@@ -121,6 +227,17 @@
     const [selected, setSelected] = React.useState(state.selected);
     const [gameTitles, setGameTitles] = React.useState({});
     const [squareArt, setSquareArt] = React.useState({});
+    const [artworkOverrides,setArtworkOverrides] = React.useState({});
+    React.useEffect(()=>{
+      const refresh=(appid,data)=>setArtworkOverrides(current=>({...current,[appid]:{data,revision:(current[appid]?.revision||0)+1}}));
+      state.refreshArtwork=refresh;
+      return()=>{if(state.refreshArtwork===refresh)delete state.refreshArtwork;};
+    },[]);
+    React.useLayoutEffect(()=>{
+      for(const [appid,art] of Object.entries(artworkOverrides)){
+        for(const img of rowRef.current?.querySelectorAll(`[data-shfs-app="${appid}"] img`)||[])if(img.src!==art.data)img.src=art.data;
+      }
+    },[artworkOverrides,selected]);
     const checkedSquareArt = React.useRef(new Set());
     const readSize = () => {
       const probe = document.createElement('div');
@@ -149,6 +266,7 @@
     }, []);
     React.useLayoutEffect(() => {
       document.documentElement.dataset.shfsHome = 'true';
+      delete document.documentElement.dataset.shfsPending;
       if (scrollArea) scrollArea.scrollTop = 0;
       if (rowRef.current && selected == null) rowRef.current.scrollLeft = 0;
       return () => {
@@ -205,19 +323,25 @@
       if (selected !== null) setSelected(null);
     }
     const games = [];
-    for (let index = 0; index < carousel.props.nNumItems; index++) {
-      const native = carousel.props.fnItemRenderer(index, size, size + 52, 0);
-      if (!native || native.props.appid === 0) continue;
-      const appid = native.props.appid;
+    let template;
+    for (let index=0; index<carousel.props.nNumItems && !template; index++) {
+      const candidate=carousel.props.fnItemRenderer(index,size,size+52,0);
+      if(candidate?.props.appid)template=candidate;
+    }
+    for (const favorite of favoriteApps()) {
+      if(!template)break;
+      const appid = favorite.appid;
+      const native = React.cloneElement(template,{appid});
       if (!appid) continue; // Real library action is provided on the lower rail.
       const navRef = gameNavRefs.current[appid] ||= { current: null };
-      const squareSource = squareArt[appid];
+      const squareSource = favorite.BIsShortcut() ? null : squareArt[appid];
       const cardWidth = squareSource ? size : Math.round(size * 2 / 3);
       games.push(h('div', { key: appid, className: 'shfs-game', 'data-shfs-app': appid,
+        'data-shfs-shortcut': favorite.BIsShortcut() ? 'true' : undefined,
         'data-shfs-art': squareSource ? 'square' : 'portrait', style: { width: cardWidth, height: size, '--shfs-card-width': `${cardWidth}px` } },
         h('div', { className: `shfs-game-title${appid === selected && gameTitles[appid] ? ' is-visible' : ''}`, 'aria-live': appid === selected ? 'polite' : undefined },
           h('span', { className:'shfs-game-title-text' }, appid === selected ? gameTitles[appid] || '' : '')),
-        React.cloneElement(native, { navRef, bFeatured: false, bShortLayout: false, label: undefined, nWidth: cardWidth, nHeight: size + 52, nLeft: 0,
+        React.cloneElement(native, { key:`${appid}:${artworkOverrides[appid]?.revision||0}`, navRef, bFeatured: false, bShortLayout: false, label: undefined, nWidth: cardWidth, nHeight: size + 52, nLeft: 0,
           bScrollIntoViewOnFocus: false, showAsHovered: false, onItemFocus: focus, onItemHover: undefined })));
     }
     const gameIds = games.map(game => game.props['data-shfs-app']).join(',');
@@ -323,7 +447,7 @@
         power: ['M12 2v10','M6 5a9 9 0 1 0 12 0']
       };
       const shapes = paths[kind].map((d,i) => h('path', {key:i,d}));
-      return h('svg', { viewBox: '0 0 26 26', 'aria-hidden': true },
+      return h('svg', { viewBox: kind === 'user' ? '-1 0 26 26' : '0 0 26 26', 'aria-hidden': true },
         kind === 'controller'
           ? h('g', null, ...shapes,
             h('circle', { key:'stick', cx:11.2, cy:16.2, r:1.3, fill:'currentColor', stroke:'none' }),
@@ -391,7 +515,7 @@
           if(event.detail?.button===gamepad.DIR_UP){focusHeader('profile');return true;}
           if(event.detail?.button===gamepad.DIR_DOWN&&actions.length){focusAction('user');return true;}
           return false;
-        } }, ...games),
+        } }, ...(games.length ? games : [h('p',{key:'empty-favorites',className:'shfs-empty-favorites',role:'status'},template ? 'お気に入りのゲームがありません。ライブラリから追加してください。' : 'ゲーム一覧を読み込み中です。')])),
       actions.length ? h(Panel, {className:'shfs-actions', 'flow-children':'row', focusable:false,
         onGamepadDirection: event => event.detail?.button === gamepad.DIR_UP ? (focusGame(), true) : false}, ...actions.map(([kind,label,activate]) => {
         const navRef = actionNavRefs.current[kind] ||= { current: null };
@@ -401,6 +525,9 @@
   }
   Object.defineProperty(carousel, 'render', { configurable: true, writable: true, value() { return h(Home); } });
   window.__switchHome = state;
+  steamJsx.jsx=patchedJsx; steamJsx.jsxs=patchedJsxs;
+  document.addEventListener('contextmenu', shortcutContextMenu, true);
+  document.addEventListener('keydown', shortcutMenuKey, true);
   carousel.forceUpdate();
   return state.status();
 })()
